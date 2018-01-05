@@ -1,0 +1,62 @@
+import chai, { expect } from 'chai';
+import sinon, { spy } from 'sinon';
+
+import * as extractTagFromURL from './ExtractTagFromURL';
+import { __RewireAPI__ as extractRewire } from './ExtractTagFromURL';
+
+
+describe('ExtractTagFromURL', () => {
+  const rewire = (module: any, methodName: string, method) => {
+          module.__Rewire__(methodName, method);
+
+          return method;
+        },
+        rewireReset = (module, methodName) => {
+          module.__ResetDependency__(methodName);
+        };
+
+  beforeEach(function() {
+
+    rewire(extractRewire, 'ReadURL', () => {
+      return {
+        getContent: () => {
+          let jsx = `<awe.DisplayCode
+              htmlSelector={'.awe-login'}
+              jsxFile={'/src/js/components/AncoaAwe.js'}
+              jsxTag={'awe.Login'}
+              componentFile={'/src/js/components/Login/Login.js'}
+            />`;
+
+          return Promise.resolve(jsx);
+        }
+      }
+    });
+  });
+
+  afterEach(function() {
+    rewireReset(extractRewire, 'ReadURL');
+  });
+
+ it('should be able to extract a tag from the file', () => {
+
+    const jsxFile = 'dummy/file.js',
+          jsxTag = 'awe.DisplayCode',
+          extractTag = new extractTagFromURL.ExtractTagFromURL(jsxTag, jsxFile),
+          jsx = `<awe.DisplayCode
+              htmlSelector={'.awe-login'}
+              jsxFile={'/src/js/components/AncoaAwe.js'}
+              jsxTag={'awe.Login'}
+              componentFile={'/src/js/components/Login/Login.js'}
+            />`,
+          jsxResponse = `junk to not select
+                        ` + jsx + `
+                        junk to not select`;
+
+    return extractTag.extract().then(response => {
+console.log('ExtractTagFromURL-test response', response)
+      expect(response[0]).to.equal(jsx);
+    });
+
+  });
+
+});

@@ -1,0 +1,171 @@
+import chai, { expect } from 'chai';
+import React from 'react'
+import ReactTestUtils from 'react-dom/test-utils';
+import {render, unmountComponentAtNode} from 'react-dom'
+import { configure, shallow, mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import sinon, { spy } from 'sinon';
+import chaiEnzyme from 'chai-enzyme';
+
+configure({ adapter: new Adapter() }); // configures Enzyme adapter
+
+chai.use(chaiEnzyme());
+
+
+import * as awe from './Tabs';
+
+
+describe('Tabs', () => {
+
+  it('should render', () => {
+    const wrapper = shallow(<awe.Tabs/>);
+    expect(
+      wrapper.length
+    ).to.equal(1);
+  });
+
+  it('should contain tab controls', () => {
+    const wrapper = shallow(<awe.Tabs/>);
+    expect(
+      wrapper.find('.awe-tabs__controls')
+    ).to.be.present();
+  });
+
+  it('should contain tab content wrapper', () => {
+    const wrapper = shallow(<awe.Tabs/>);
+    expect(
+      wrapper.find('.awe-tabs__content-container')
+    ).to.be.present();
+  });
+
+  it('should have one tab for each item', () => {
+    const tabs = [{
+            id: 'tab1',
+            label: 'Tab 1',
+            content: 'Content 1'
+          },
+          {
+            id: 'tab2',
+            label: 'Tab 2',
+            content: 'Content 2'
+          }],
+          wrapper = shallow(<awe.Tabs
+                              tabs={tabs}
+                            />);
+    expect(
+      wrapper.find('.awe-tabs__controls li').length
+    ).to.equal(tabs.length);
+  });
+
+  it('should have one content for each item', () => {
+    const tabs = [{
+            id: 'tab1',
+            label: 'Tab 1',
+            content: 'Content 1'
+          },
+          {
+            id: 'tab2',
+            label: 'Tab 2',
+            content: 'Content 2',
+          }],
+          wrapper = shallow(<awe.Tabs
+                              tabs={tabs}
+                            />);
+    expect(
+      wrapper.find('.awe-tabs__content').length
+    ).to.equal(tabs.length);
+  });
+
+  it('should not show tab content before a tab is clicked', () => {
+    const tabs = [{
+            id: 'tab1',
+            label: 'Tab 1',
+            content: 'Content 1'
+          },
+          {
+            id: 'tab2',
+            label: 'Tab 2',
+            content: 'Content 2'
+          }],
+          wrapper = mount(<awe.Tabs
+                              tabs={tabs}
+                            />),
+          content2 = wrapper.find('#awe-tabs-content_' + tabs[1].id,);
+
+    expect(
+      content2
+    ).to.have.style('display', 'none');
+  });
+
+  it('should show tab content when a tab is clicked', () => {
+    const tabs = [{
+            id: 'tab1',
+            label: 'Tab 1',
+            content: 'Content 1'
+          },
+          {
+            id: 'tab2',
+            label: 'Tab 2',
+            content: 'Content 2'
+          }],
+          wrapper = mount(<awe.Tabs
+                              tabs={tabs}
+                            />),
+          tab2 = wrapper.find('#awe-tabs_' + tabs[1].id),
+          content2 = wrapper.find('#awe-tabs-content_' + tabs[1].id,);
+
+    tab2.simulate('click');
+
+    expect(
+      content2
+    ).to.not.have.style('display', 'none');
+
+    expect(
+      content2.text()
+    ).to.equal(tabs[1].content);
+  });
+
+  it('can have a default tab pre-selected', () => {
+    const tabs = [{
+            id: 'tab1',
+            label: 'Tab 1',
+            content: 'Content 1'
+          },
+          {
+            id: 'tab2',
+            label: 'Tab 2',
+            content: 'Content 2'
+          }],
+          wrapper = mount(<awe.Tabs
+                              tabs={tabs}
+                              selected={2}
+                            />),
+          content2 = wrapper.find('#awe-tabs-content_' + tabs[1].id,);
+
+    expect(
+      content2
+    ).to.not.have.style('display', 'none');
+  });
+
+  it('can have disabled tabs', () => {
+    const tabs = [{
+            id: 'tab1',
+            label: 'Tab 1',
+            content: 'Content 1'
+          },
+          {
+            id: 'tab2',
+            label: 'Tab 2',
+            content: 'Content 2'
+          }],
+          tabId = 'awe-tabs_' + tabs[1].id,
+          wrapper = mount(<awe.Tabs
+                              tabs={tabs}
+                              disabled={{'tab2' : true}}
+                            />),
+          tab2 = wrapper.find('#' + tabId);
+    expect(
+      tab2
+    ).to.have.prop('aria-disabled', 'true');
+  });
+});

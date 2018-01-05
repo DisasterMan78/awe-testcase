@@ -1,0 +1,121 @@
+import chai, { expect } from 'chai';
+import React from 'react'
+import ReactTestUtils from 'react-dom/test-utils';
+import {render, unmountComponentAtNode} from 'react-dom'
+import { configure, shallow, mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import sinon, { spy } from 'sinon';
+import chaiEnzyme from 'chai-enzyme';
+
+configure({ adapter: new Adapter() }); // configures Enzyme adapter
+
+chai.use(chaiEnzyme());
+
+
+import * as awe from './DisplayCode';
+
+
+describe('DisplayCode', () => {
+  beforeEach(function() {
+
+    this.rawFile = sinon.useFakeXMLHttpRequest();
+
+    this.requests = [];
+    this.rawFile.onCreate = (rawFile) => {
+      this.requests.push(rawFile);
+    };
+
+    this.jsxResponse = 'JSX response not set';
+  });
+
+  afterEach(function() {
+    this.rawFile.restore();
+
+    this.jsxResponse = 'JSX response not set';
+  });
+
+  it('should render', () => {
+    const wrapper = mount(
+                      <awe.DisplayCode
+                        htmlSelector=".awe-display-code"
+                        jsxFile={'/src/js/components/AncoaAwe.js'}
+                        jsxTag={'awe.Login'}
+                        componentFile={'/src/js/components/DisplayCode/DisplayCode.js'}
+                      />);
+    expect(
+      wrapper
+    ).to.be.ok;
+  });
+
+  it('should contain a Tabs component', () => {
+    const wrapper = mount(
+                      <awe.DisplayCode
+                        htmlSelector=".awe-display-code"
+                        jsxFile={'/src/js/components/AncoaAwe.js'}
+                        jsxTag={'awe.Login'}
+                        componentFile={'/src/js/components/DisplayCode/DisplayCode.js'}
+                      />);
+    expect(
+      wrapper.find('Tabs')
+    ).to.be.present();
+  });
+
+  // it('should be able to extract HTML from the DOM', () => {
+  //   const displayCode = new awe.DisplayCode({
+  //           htmlSelector: '.awe-login'
+  //         }),
+  //         htmlResponse = '<div class="test-content">test response</div>';
+
+  //   this.querySelector = sinon.stub(document, 'querySelector'),
+  //   this.createElement = sinon.stub(document, 'createElement');
+
+  //   this.querySelector.returns({
+  //     cloneNode: () => {
+  //       return {
+  //         innerHTML: htmlResponse
+  //       }
+  //     }
+  //   });
+
+  //   this.createElement.returns({
+  //     appendChild: function(node) {
+  //       this.innerHTML = node.innerHTML;
+  //     }
+  //   })
+
+  //   expect(
+  //     displayCode.extractHtmlFromDom()
+  //   ).to.equal(htmlResponse);
+
+  //   this.querySelector.restore();
+  //   this.createElement.restore();
+  // });
+
+//   it('should be able to extract a tag from a file', () => {
+//     const jsxFile = '/src/js/components/AncoaAwe.js',
+//           jsxTag = 'awe.DisplayCode',
+//           displayCode = new awe.DisplayCode({
+//             jsxFile: jsxFile,
+//             jsxTag: jsxTag
+//           }),
+//           jsx = `
+//             <awe.DisplayCode
+//               htmlSelector={'.awe-login'}
+//               jsxFile={'/src/js/components/AncoaAwe.js'}
+//               jsxTag={'awe.Login'}
+//               componentFile={'/src/js/components/Login/Login.js'}
+//             />`;
+
+//     this.jsxResponse = `junk to not select
+//                         ` + jsx + `
+//                         junk to not select`;
+
+//     displayCode.extractTagFromFile(jsxFile, jsxTag)
+
+//     expect(
+
+//     ).to.equal(jsx);
+// console.log('req',this.requests[0]);
+//     this.requests[0].respond(200, { 'Content-Type': 'text/html' }, this.jsxResponse);
+//   })
+});

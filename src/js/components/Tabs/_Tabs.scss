@@ -1,0 +1,21 @@
+.awe-tabs {
+  .nav-link{
+    &.active{
+      background-color: $gray-400;
+    }
+  }
+
+  &__content{
+    .active{
+      display: block;
+    }
+  }
+
+  &__anchor{
+    &:target{
+       & + .awe-tabs__content{
+        display: block;
+       }
+    }
+  }
+}

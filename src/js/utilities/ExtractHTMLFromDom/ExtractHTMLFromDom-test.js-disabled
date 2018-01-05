@@ -1,0 +1,36 @@
+import chai, { expect } from 'chai';
+import sinon, { spy } from 'sinon';
+
+import {ExtractHTMLFromDom} from './ExtractHTMLFromDom';
+
+describe('ExtractHTMLFromDom', () => {
+ it('should be able to extract HTML from the DOM', () => {
+    const extractHtml = new ExtractHTMLFromDom(),
+          htmlResponse = '<div class="test-content">test response</div>';
+
+    this.querySelector = sinon.stub(document, 'querySelector'),
+    this.createElement = sinon.stub(document, 'createElement');
+
+    this.querySelector.returns({
+      cloneNode: () => {
+        return {
+          innerHTML: htmlResponse
+        }
+      }
+    });
+
+    this.createElement.returns({
+      appendChild: function(node) {
+        this.innerHTML = node.innerHTML;
+      }
+    });
+
+    expect(
+      extractHtml.html('.test-content')
+    ).to.equal(htmlResponse);
+
+    this.querySelector.restore();
+    this.createElement.restore();
+  });
+
+});

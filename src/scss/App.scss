@@ -1,0 +1,14 @@
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/bootstrap";
+@import "~prismjs/themes/prism.css";
+
+@import "./variables";
+@import "./import/_override";
+
+@import "../js/components/SyntaxHighlighter/_SyntaxHighlighter";
+@import "../js/components/Tabs/_Tabs";
+.App {
+  height: 100%;
+  min-height: 400px;
+  text-align: center;
+}
