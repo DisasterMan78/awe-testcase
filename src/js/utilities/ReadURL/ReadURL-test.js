@@ -27,15 +27,15 @@ describe('ReadURL', () => {
     this.response = 'Response not set';
   });
 
-  it('should get file content from an xhr request', (done) => {
+  it('should get file content from a successful xhr request', (done) => {
 
     const readURL = new ReadURL(),
           url = 'http://dummy.com/file.js';
 
     this.response = {
       status: 200,
-      contentType: 'application/json',
-      content: `<awe.DisplayCode
+      contentType: 'application/html',
+      responseText: `<awe.DisplayCode
         htmlSelector={'.awe-login'}
         jsxFile={'/src/js/components/AncoaAwe.js'}
         jsxTag={'awe.Login'}
@@ -45,20 +45,48 @@ describe('ReadURL', () => {
 
     readURL.getContent(url)
       .then((response) => {
-        expect(response).to.equal(this.response.content);
-        done();
-      })
-      .catch((error) => {
-console.log(error);
+        expect(response).to.equal(this.response.responseText);
         done();
       });
 
-        this.requests[0].respond(this.response.status,
-          {
-            'Content-Type': this.response.contentType
-          },
-          this.response.content
-        );
+    this.requests[0].respond(this.response.status,
+      {
+        'Content-Type': this.response.contentType
+      },
+      this.response.responseText
+    );
+
+  });
+
+  it('should return an eror from an unsuccessful xhr request', (done) => {
+
+    const readURL = new ReadURL(),
+          url = 'http://dummy.com/file.js';
+
+    this.response = {
+      status: 500,
+      contentType: 'application/json',
+      responseText: JSON.stringify({})
+    };
+
+    readURL.getContent(url)
+      .then(
+        (response) => {
+          expect(response).to.equal(this.response.responseText);
+          done();
+        },
+        (error) => {
+          expect(error).to.equal('ajax error:' + this.response.status + ' ' + this.response.responseText);
+          done();
+        }
+      );
+
+    this.requests[0].respond(this.response.status,
+      {
+        'Content-Type': this.response.contentType
+      },
+      this.response.responseText
+    );
 
   });
 
